@@ -80,7 +80,11 @@ body {
 }
 
 .container {
-  padding: 64px;
+  padding: 164px;
+}
+
+.padding-answer {
+    padding: 5px;
 }
 
 .small-container {
