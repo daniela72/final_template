@@ -119,6 +119,7 @@ def submit(request, course_id):
     return HttpResponseRedirect(reverse(viewname = 'onlinecourse:show_exam_result', args = (course_id, submission.id,)))
 
 
+# Method to collect the selected choices from the exam form from the request object
 def extract_answers(request):
     submitted_anwsers = []
     for key in request.POST:
@@ -130,26 +131,53 @@ def extract_answers(request):
 
 # Create an exam result view to check if learner passed exam
 def show_exam_result(request, course_id, submission_id):
-   course = Course.objects.get(pk=course_id)
-   submission = Submission.objects.get(pk=submission_id)
-   selected_ids = []
-   not_selected = []
-   selected_count = 0
+    course = Course.objects.get(pk=course_id)
+    submission = Submission.objects.get(pk=submission_id)
+    selected_ids = []
+    not_selected = []
+    grade = 0
+    # same result as selected_ids
+    submission_choices_ids = submission.chocies.values_list('pk', flat=True)
+
+    for question in course.question_set.all():
+        question.not_selected(submission_choices_ids, not_selected)
+        if question.is_get_score(submission_choices_ids):
+                    # total grade for each question
+                    grade += question.grade
+
+    # choice in exam_result_bootstrap
+    for choice in submission.chocies.all():
+            selected_ids.append(choice.id)
+
+    context ={}
+    context['course'] = course
+    context['selected_ids'] = selected_ids
+    context['grade'] = int(100 * grade / 3)
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
+
+
+'''
+# get the selected correct answer in text answer
+test = submission.chocies.all()
+complete_count = 0
+# correct answer selected
+selected_count = 0
+
+    # get all correct answers
+    for choice in question.choice_set.all():
+        if choice.is_correct:
+            complete_count += choice.question.grade
+
+   for question in course.question_set.all():
+       all_correct_answers = question.choice_set.filter(is_correct=True).count()
+       question.not_selected(submission_choices_ids, not_selected)
+       # get all correct answers
+       for choice in question.choice_set.all():
+            if choice.is_correct:
+                complete_count += choice.question.grade
+
    for choice in submission.chocies.all():
         selected_ids.append(choice.id)
         if choice.is_correct:
             selected_count += choice.question.grade
-   complete_count = 0
-   submission_choices_ids = submission.chocies.values_list('pk', flat=True)
-   for question in course.question_set.all():
-       question.not_selected(submission_choices_ids, not_selected)
-       for choice in question.choice_set.all():
-           if choice.is_correct:
-               complete_count += choice.question.grade
-   context ={}
-   context['course'] = course
-   context['selected_ids'] = selected_ids
-   context['not_selected'] = not_selected
-   context['grade'] = int(100 * selected_count / complete_count)
-   return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
-
+'''

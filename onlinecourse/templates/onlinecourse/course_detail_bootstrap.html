@@ -40,10 +40,10 @@
     </nav>
 
     <!-- Page content -->
-    <div class="container">
+    <div class="container mt-5 mb-5">
         <div class="container-fluid">
                 <h2>{{ course.name }}</h2>
-                <div class="card-columns-vertical">
+                <div class="card-columns-vertical mt-4 mb-3">
                     {% for lesson in course.lesson_set.all %}
                         <div class="card mt-1">
                             <div class="card-header"><h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5></div>
@@ -55,15 +55,14 @@
                 <!-- <HINT> Use Bootstrap Collapse to hide exam -->
                 <!-- <HINT> If user is authenticated, show course exam with a list of question -->
                 {% if user.is_authenticated %}
-                <br />
                 <button type="button" class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>
-                <div id="exam" class="collapse">
+                <div id="exam" class="collapse pt-2">
                     <form id="questionform" action="{% url 'onlinecourse:submit' course.id %}" method="post">
                         {% for question in course.question_set.all %}
                         <div class="card mt-1">
                             <div class="card-header"><h5>{{ question.question_text}}</h5></div>
                             {% csrf_token %}
-                            <div class="form-group">
+                            <div class="form-group m-3">
                             {% for choice in question.choice_set.all %}
                                 <div class="form-check">
                                     <label class="form-check-label">
@@ -76,7 +75,7 @@
                             </div>
                         </div>
                     {% endfor %}
-                    <input class="btn btn-success btn-block" type="submit" value="Submit">
+                    <input class="btn btn-success btn-block mt-2" type="submit" value="Submit">
                 </form>
                 <!-- <HINT> Each example will have many questions -->
                 <!-- <HINT> Each question will have many choices -->
